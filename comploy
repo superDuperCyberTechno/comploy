@@ -1,0 +1,61 @@
+#!/bin/bash
+#################################################################
+#                    ___ _      
+#  _____ ___  ____  / __(_)___ _
+# / ___/ __ \/ __ \/ /_/ / __ `/
+#/ /__/ /_/ / / / / __/ / /_/ / 
+#\___/\____/_/ /_/_/ /_/\__, /  
+#                      /____/   
+#################################################################
+
+#add files to not deploy here, seperate with a space
+ignored_files="comploy composer.lock composer.json session.vim .env .git* *database.sqlite storage/*"
+
+#destination server and domain
+host=""
+
+#the dir to contain your public files on the server
+server_dir="/var/www/$host"
+
+
+#################################################################
+#                          _     
+#   ____ ___  ____  ____  (_)____
+#  / __ `__ \/ __ `/ __ `/ / ___/
+# / / / / / / /_/ / /_/ / / /__  
+#/_/ /_/ /_/\__,_/\__, /_/\___/  
+#                /____/       
+#################################################################
+
+#detect if we already have deployed by checking if the folder's empty
+is_first_run=$(ssh root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
+
+# if there are uncommitted shit on first run
+if ( [[ $is_first_run ]] && ( [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]] ));then
+    echo "ABORTING: Please deploy a working, fresh repository with NO modified - or untracked files."
+    exit 1
+fi
+
+#if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
+if [[ $(git diff --cached --exit-code) ]] && [ ! -z "$1" -a "$1" != " " ];then
+    git commit -m "$1"
+fi
+
+#add the ignore files from the config header var
+echo $ignored_files | tr ' ' '\n' > .ignore;
+#add modified files to the deploy blacklist
+git ls-files -m >> .ignore
+#add the untracked files to the deploy blacklist
+git ls-files . --exclude-standard --others >> .ignore
+
+echo "Syncing files..."
+#sync the files
+rsync -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
+#remove the temporary, aggregated ignore list
+rm -f .ignore
+
+#set the correct folder permissions
+ssh root@$host "chown -R www-data:www-data /var/www/*;chmod -R 755 /var/www;"
+
+#all is well
+echo "Project synced and ready to go!"
