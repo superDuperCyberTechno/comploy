@@ -4,7 +4,7 @@
 
 The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server.
 
-You can pass a string argument (representing the commit message) to _comploy_ if you want to commit and deploy at the same time. That - of course - is dependent on files actually being staged prior to execution. _comploy_ will then commit (if string argument has been passed) and deploy all unchanged (committed) files to the server.
+You can pass a string argument (representing the commit message) to _comploy_ if you want to commit and deploy at the same time. That - of course - is dependent on files actually being staged prior to execution. _comploy_ will then commit (if string argument has been passed) and deploy all unchanged (committed) files to the server:
 
 ```
 ./comploy 'your commit message here'
@@ -23,7 +23,7 @@ To download a copy, simply run the following command in the root of your git pro
 wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy
 ```
 
-Open the file and edit the `host`, - and potentially the `server_dir` variables found in the config section. - Here you will also be able to assign ignored files that will **not** be synchronized with the server.
+Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored files that will **not** be synchronized with the server. Multiple hosts and ignored files must be seperated by a space.
 
 Please be aware that _comploy_ is designed to work with serving your sites in the `/var/www/[site]` folder structure. A guide to achieving this can be found [here](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-16-04).
 
