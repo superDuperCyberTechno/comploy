@@ -1,4 +1,5 @@
 #!/bin/bash
+declare -A hosts
 #################################################################
 #  _____ ___  ____  / __(_)___ _
 # / ___/ __ \/ __ \/ /_/ / __ `/
@@ -10,10 +11,11 @@
 #add files to not deploy here, seperate with a space
 ignored_files="comploy composer.lock composer.json session.vim .env .git* *database.sqlite storage/*"
 
-#destination host domain/IP address.
-#you can add multiple servers, seperated by a space
-hosts=""
-
+#destination host domain/IP address and folder pairs
+#you can add multiple servers, one per line
+#add them as shown in below example:
+#hosts['google.com']='/var/www/google.com/html'
+hosts['']=''
 
 #################################################################
 #   ____ ___  ____  ____  (_)____
@@ -23,8 +25,8 @@ hosts=""
 #                /____/
 #################################################################
 
-for host in $hosts; do
-    server_dir="/var/www/$host"
+for host in "${!hosts[@]}"; do
+    server_dir="${hosts[$host]}"
     #detect if we already have deployed by checking if the folder's empty
     is_first_run=$(ssh root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
@@ -48,8 +50,8 @@ git ls-files -m >> .ignore
 git ls-files . --exclude-standard --others >> .ignore
 
 #sync the files
-for host in $hosts; do
-    server_dir="/var/www/$host"
+for host in "${!hosts[@]}"; do
+    server_dir="${hosts[$host]}"
     echo "Syncing with $host..."
     rsync -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
 
