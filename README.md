@@ -27,4 +27,4 @@ Open the file and edit the `hosts` variable found in the config section. - Here 
 
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
-_comploy_ enforces ´www-data:www-data´, ´755´ rights on the entire project after synchronization.
+_comploy_ enforces `www-data:www-data`, `755` rights on the entire project after synchronization.
