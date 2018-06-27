@@ -56,7 +56,7 @@ for host in "${!hosts[@]}"; do
     rsync -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
 
     #set the correct folder permissions
-    ssh root@$host "chown -R www-data:www-data /var/www/*;chmod -R 755 /var/www;"
+    ssh root@$host "chown -R www-data:www-data $server_dir;chmod -R 755 $server_dir;"
 done
 
 #remove the temporary, aggregated ignore list
