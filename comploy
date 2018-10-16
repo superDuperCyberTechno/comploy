@@ -9,7 +9,7 @@ declare -A hosts
 #################################################################
 
 #add files to not deploy here, seperate with a space
-ignored_files="comploy session.vim .env *database.sqlite /composer* /.git* /storage/*"
+ignored_files="comploy session.vim .env *database.sqlite* /composer* /.git* /storage/*"
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
@@ -56,7 +56,7 @@ for host in "${!hosts[@]}"; do
     rsync -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
 
     #set the correct folder permissions
-    ssh root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f -exec chmod 664 {} \;;find /var/www -type d -exec chmod 775 {} \;;'
+    ssh root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
 done
 
 #remove the temporary, aggregated ignore list
