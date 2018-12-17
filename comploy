@@ -9,7 +9,7 @@ declare -A hosts
 #################################################################
 
 #add files to not deploy here, seperate with a space
-ignored_files="comploy session.vim .env *database.sqlite* /composer* /.git* /storage/*"
+ignored_files="comploy session.vim .env *database.sqlite* *-journal /composer* /.git* /storage/*"
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
