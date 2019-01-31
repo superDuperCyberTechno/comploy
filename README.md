@@ -3,7 +3,8 @@
 _comploy_ is a simple deployment script written in bash, made to co-operate with git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). It's kinda like an ultra lean [Deployer](https://deployer.org/)...
 
 ### Installation
-To download a copy, simply run the following command in the root of your git project: 
+_comploy_ works on a per-project basis so you need a copy for each of your projects you need to deploy.
+To install it in your project, simply run the following command in the root of your git project:
 
 ```
 wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy && chmod +x comploy
