@@ -1,6 +1,8 @@
 ![comploy](https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/header.png)
 
-_comploy_ is a simple deployment script written in bash, made to co-operate with git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). It's kinda like an ultra lean [Deployer](https://deployer.org/)...
+_comploy_ is a Linux-only, simple deployment script written in Bash, made to co-operate with git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). 
+
+It's kinda like an ultra lean [Deployer](https://deployer.org/)...
 
 ### Installation
 _comploy_ works on a per-project basis so you need a copy for each of your projects you need to deploy.
