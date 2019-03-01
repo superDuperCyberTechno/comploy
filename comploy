@@ -11,6 +11,8 @@ declare -A hosts
 #add files to not deploy here, seperate with a space
 ignored_files="comploy session.vim .env *database.sqlite* *-journal /composer* /.git* /storage/*"
 
+key=''
+
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
 #add them as shown in below example:
@@ -25,10 +27,16 @@ hosts['']=''
 #                /____/
 #################################################################
 
+#if we haven't set the key, then simply use the local id_rsa
+if [ -z "$key" ]; then
+    key='~/.ssh/id_rsa'
+fi
+
+#for all hosts...
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     #detect if we already have deployed by checking if the folder's empty
-    is_first_run=$(ssh root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
+    is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
     # if there are uncommitted shit on first run
     if ( [[ $is_first_run ]] && ( [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]] ));then
@@ -53,10 +61,10 @@ git ls-files . --exclude-standard --others >> .ignore
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     echo "Syncing with $host..."
-    rsync -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
+    rsync -e "ssh -i $key" -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
 
     #set the correct folder permissions
-    ssh root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
+    ssh -i "$key" root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
 done
 
 #remove the temporary, aggregated ignore list
@@ -64,3 +72,4 @@ rm -f .ignore
 
 #all is well
 echo "Project synced and ready to go!"
+
