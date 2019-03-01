@@ -14,7 +14,7 @@ wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comp
 
 Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored files that will **not** be synchronized with the server. Ignored files *must* be seperated by a space.
 
-Optionally you can define the absolute path local path to an SSH key if your machine's key (~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (~/.ssh/
+Optionally you can define the absolute path local path to an SSH key if your machine's key (\~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (\~/.ssh/id_rsa).
 
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
