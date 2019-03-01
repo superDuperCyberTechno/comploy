@@ -8,16 +8,17 @@ declare -A hosts
 #                      /____/
 #################################################################
 
-#add files to not deploy here, seperate with a space
+#add files to NOT deploy here, seperate with a space
 ignored_files="comploy session.vim .env *database.sqlite* *-journal /composer* /.git* /storage/*"
-
-key=''
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
 #add them as shown in below example:
 #hosts['google.com']='/var/www/google.com/html'
 hosts['']=''
+
+#optionally define the absolute local path to the SSH key to access the deployment server(s)
+key=''
 
 #################################################################
 #   ____ ___  ____  ____  (_)____
