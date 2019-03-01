@@ -55,24 +55,21 @@ if [[ $(git diff --cached --exit-code) ]] && [ ! -z "$1" -a "$1" != " " ];then
 fi
 
 #add the ignore files from the config header var
-echo $ignored_files | tr ' ' '\n' > .ignore;
+echo $ignored_files | tr ' ' '\n' > /tmp/comploy_ignore;
 #add modified files to the deploy blacklist
-git ls-files -m >> .ignore
+git ls-files -m >> /tmp/comploy_ignore
 #add the untracked files to the deploy blacklist
-git ls-files . --exclude-standard --others >> .ignore
+git ls-files . --exclude-standard --others >> /tmp/comploy_ignore
 
 #sync the files
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     echo "Syncing with $host..."
-    rsync -e "ssh -i $key" -a --delete --exclude-from ".ignore" ./ root@$host:$server_dir
+    rsync -e "ssh -i $key" -a --delete --exclude-from "/tmp/comploy_ignore" ./ root@$host:$server_dir
 
     #set the correct folder permissions
     ssh -i "$key" root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
 done
-
-#remove the temporary, aggregated ignore list
-rm -f .ignore
 
 #all is well
 echo "Project synced and ready to go!"
