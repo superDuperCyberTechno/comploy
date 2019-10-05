@@ -37,7 +37,7 @@ Or, if you have already committed manually:
 An even simpler solution is to add the following function to your `.bashrc`:
 
 ```
-function cmp() {
+cmp() {
     ./comploy "$1"
 }
 ```
