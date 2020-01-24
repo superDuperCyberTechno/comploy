@@ -33,7 +33,7 @@ key=''
 
 #if we haven't set the key, then simply use the local id_rsa
 if [ -z "$key" ]; then
-    key='~/.ssh/id_rsa'
+    key="$HOME/.ssh/id_rsa"
 fi
 
 #for all hosts...
@@ -43,19 +43,19 @@ for host in "${!hosts[@]}"; do
     is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
     # if there are uncommitted shit on first run
-    if ( [[ $is_first_run ]] && ( [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]] ));then
+    if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; };then
         echo "ABORTING: Make sure that your first deploy is from a fresh repository with NO modified - OR untracked files."
         exit 1
     fi
 done
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
-if [[ $(git diff --cached --exit-code) ]] && [ ! -z "$1" -a "$1" != " " ];then
+if [[ $(git diff --cached --exit-code) ]] && [[ -n "$1" ]] && [[ "$1" != " " ]];then
     git commit -m "$1"
 fi
 
 #add the ignore files from the config header var
-echo $ignored_files | tr ' ' '\n' > /tmp/comploy_ignore;
+echo "$ignored_files" | tr ' ' '\n' > /tmp/comploy_ignore;
 #add modified files to the deploy blacklist
 git ls-files -m >> /tmp/comploy_ignore
 #add the untracked files to the deploy blacklist
