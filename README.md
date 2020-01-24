@@ -1,6 +1,6 @@
 ![comploy](https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/header.png)
 
-_comploy_ is a Linux-only, simple deployment script written in Bash, made to co-operate with git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). 
+_comploy_ is a Linux-only, simple, web development deployment script written in Bash, made to co-operate with git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). 
 
 It's kinda like an ultra lean [Deployer](https://deployer.org/)...
 
@@ -12,21 +12,23 @@ To install it in your project, simply run the following command in the root of y
 wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy && chmod +x comploy
 ```
 
-Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored files that will **not** be synchronized with the server. Ignored files *must* be seperated by a space.
+Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored folders/files that will **not** be synchronized with the server. Ignored folders/files *must* be seperated by a space.
 
-Optionally you can define the absolute path local path to an SSH key (the `key` variable) if your machine's key (\~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (\~/.ssh/id_rsa).
+Optionally you can define the absolute local path to an SSH key (the `key` variable) if your machine's key (\~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (\~/.ssh/id_rsa).
 
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
 
 ### Usage
-You can pass a string argument (representing the commit message) to _comploy_ if you want to commit and deploy at the same time. That - of course - is dependent on files actually being staged prior to execution. _comploy_ will then commit (if string argument has been passed) and deploy all unchanged (committed) files to the server:
+Simply running _comploy_ will sync your project with the server, up to - but not including - files that have been added or changed since last commit. If you have a clean project (all files committed), it will sync everything.
+
+You can pass a string argument (representing the commit message) to _comploy_ if you want to commit __and__ deploy at the same time. That - of course - is dependent on files actually being staged prior to execution. _comploy_ will then commit (if string argument has been passed) and deploy all unchanged (committed) files to the server:
 
 ```
 ./comploy 'your commit message here'
 ```
 
-Or, if you have already committed:
+Or, if you have already committed manually:
 
 ```
 ./comploy
@@ -35,7 +37,7 @@ Or, if you have already committed:
 An even simpler solution is to add the following function to your `.bashrc`:
 
 ```
-function cmp() {
+cmp() {
     ./comploy "$1"
 }
 ```
