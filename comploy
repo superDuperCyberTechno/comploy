@@ -45,7 +45,7 @@ if [[ "$use_git" = true ]]; then
         #detect if we already have deployed by checking if the folder's empty
         is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
-    # if there are uncommitted shit on first run
+        #if there are uncommitted shit on first run
         if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; }; then
             echo "ABORTING: Make sure that your first deploy is from a fresh repository with NO modified - OR untracked files."
             exit 1
