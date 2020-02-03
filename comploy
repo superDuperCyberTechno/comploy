@@ -46,11 +46,11 @@ if [[ "$use_git" = true ]]; then
         is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
     # if there are uncommitted shit on first run
-    if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; };then
-        echo "ABORTING: Make sure that your first deploy is from a fresh repository with NO modified - OR untracked files."
-        exit 1
-    fi
-done
+        if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; }; then
+            echo "ABORTING: Make sure that your first deploy is from a fresh repository with NO modified - OR untracked files."
+            exit 1
+        fi
+    done
 fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
