@@ -22,6 +22,9 @@ hosts['']=''
 #optionally define the absolute local path to the SSH key to access the deployment server(s)
 key=''
 
+#if you don't wanna screw around with git and just want to synchronize with the server, disable git here
+use_git=true
+
 ##################################################################
 
 #   ____ ___  ____  ____  ______
@@ -36,11 +39,11 @@ if [ -z "$key" ]; then
     key="$HOME/.ssh/id_rsa"
 fi
 
-#for all hosts...
-for host in "${!hosts[@]}"; do
-    server_dir="${hosts[$host]}"
-    #detect if we already have deployed by checking if the folder's empty
-    is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
+if [[ "$use_git" = true ]]; then
+    for host in "${!hosts[@]}"; do
+        server_dir="${hosts[$host]}"
+        #detect if we already have deployed by checking if the folder's empty
+        is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
 
     # if there are uncommitted shit on first run
     if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; };then
@@ -48,18 +51,24 @@ for host in "${!hosts[@]}"; do
         exit 1
     fi
 done
+fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
-if [[ $(git diff --cached --exit-code) ]] && [[ -n "$1" ]] && [[ "$1" != " " ]];then
-    git commit -m "$1"
+if [[ "$use_git" = true ]]; then
+    if [[ $(git diff --cached --exit-code) ]] && [[ -n "$1" ]] && [[ "$1" != " " ]];then
+        git commit -m "$1"
+    fi
 fi
 
 #add the ignore files from the config header var
 echo "$ignored_files" | tr ' ' '\n' > /tmp/comploy_ignore;
 #add modified files to the deploy blacklist
-git ls-files -m >> /tmp/comploy_ignore
-#add the untracked files to the deploy blacklist
-git ls-files . --exclude-standard --others >> /tmp/comploy_ignore
+
+if [[ "$use_git" = true ]]; then
+    git ls-files -m >> /tmp/comploy_ignore
+    #add the untracked files to the deploy blacklist
+    git ls-files . --exclude-standard --others >> /tmp/comploy_ignore
+fi
 
 #sync the files
 for host in "${!hosts[@]}"; do
@@ -73,4 +82,3 @@ done
 
 #all is well
 echo "Project synced and ready to go!"
-
