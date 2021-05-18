@@ -10,8 +10,12 @@ declare -A hosts
 #                      /____/
 #customize by editing vars below
 
-#add files to NOT deploy here, seperate with a space
-ignored_files='comploy .env *database.sqlite* *-journal /composer* /.git* /storage/framework/*/* tags'
+#add files to NOT deploy here, seperate with a space.
+ignored_files='comploy *database.sqlite* *-journal composer* .*'
+
+#Laravel-specific excludes, uncomment to properly sync your Laravel project
+#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/*'
+
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
