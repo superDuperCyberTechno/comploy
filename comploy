@@ -13,7 +13,6 @@ declare -A hosts
 #add files to NOT deploy here, seperate with a space
 ignored_files='comploy .env *database.sqlite* *-journal /composer* /.git* /storage/framework/*/* tags'
 
-
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
 #add them as shown in below example:
@@ -24,6 +23,7 @@ hosts['']=''
 key=''
 
 #if you don't wanna screw around with git and just want to synchronize with the server, disable git here
+#if set to true, it will also try to push to the repo
 use_git=true
 
 ##################################################################
@@ -80,6 +80,10 @@ for host in "${!hosts[@]}"; do
     #set the correct folder permissions
     ssh -i "$key" root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
 done
+
+if [[ "$use_git" = true ]]; then
+    git push
+fi
 
 #all is well
 echo "Project synced and ready to go!"
