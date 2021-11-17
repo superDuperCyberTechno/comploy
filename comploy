@@ -11,7 +11,7 @@ declare -A hosts
 #customize by editing vars below
 
 #add files to NOT deploy here, seperate with a space.
-ignored_files='comploy *database.sqlite* *-journal composer* .*'
+ignored_files='comploy *database.sqlite* *-journal'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
 #ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/*'
