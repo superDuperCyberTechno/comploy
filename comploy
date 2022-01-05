@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 declare -A hosts
 
+# https://github.com/superDuperCyberTechno/comploy
+# This is free and unencumbered software released into the public domain.
 ##################################################################
 
 #  _____ ___  ____  _ ________
