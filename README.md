@@ -1,4 +1,9 @@
-![comploy](https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/header.png)
+ ██████╗ ██████╗ ███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗
+██╔════╝██╔═══██╗████╗ ████║██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝
+██║     ██║   ██║██╔████╔██║██████╔╝██║     ██║   ██║ ╚████╔╝ 
+██║     ██║   ██║██║╚██╔╝██║██╔═══╝ ██║     ██║   ██║  ╚██╔╝  
+╚██████╗╚██████╔╝██║ ╚═╝ ██║██║     ███████╗╚██████╔╝   ██║   
+ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝                                                          
 
 _comploy_ is a Linux-only, simple, web development deployment script written in Bash, made to co-operate with Git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). 
 
