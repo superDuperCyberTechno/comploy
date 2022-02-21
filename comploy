@@ -17,7 +17,7 @@ declare -A hosts
 ignored_files='comploy *database.sqlite* *-journal'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
-#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/*'
+#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* .env'
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line like this:
