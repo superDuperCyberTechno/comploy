@@ -16,8 +16,7 @@ declare -A hosts
 ignored_files='comploy *database.sqlite* *-journal'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
-#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/*'
-
+# ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* /vendor'
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line
@@ -31,26 +30,33 @@ key=''
 #if you don't wanna screw around with git and just want to synchronize with the server, disable git here
 #if set to true, it will also try to push to the repo
 use_git=true
+#if you use composer, this variable controls if you want to run composer install after deployment
+use_composer=true
 
 ##################################################################
 
 #   ____ ___  ____  ____  ______
 #  / __ `__ \/ __ `/ __ `/ / ___/
-# / / / / / / /_/ / /_/ / / /__ 
+# / / / / / / /_/ / /_/ / / /__
 #/_/ /_/ /_/\__,_/\__, /_/\___/
 #                /____/
 #here be dragons, steel yourself
 
-#if we haven't set the key, then simply use the local id_rsa
-if [ -z "$key" ]; then
-    key="$HOME/.ssh/id_rsa"
+#if we use composer, ignore the /vendor folder
+if $use_composer; then
+    ignored_files+=' /vendor'
 fi
 
-if [[ "$use_git" = true ]]; then
+#if we haven't set the key, then simply use the local id_rsa
+if [ -z "${key}" ]; then
+    key="${HOME}/.ssh/id_rsa"
+fi
+
+if $use_git ; then
     for host in "${!hosts[@]}"; do
         server_dir="${hosts[$host]}"
         #detect if we already have deployed by checking if the folder's empty
-        is_first_run=$(ssh -i "$key" root@$host 'if [ -z "$(ls -A '$server_dir')" ];then echo 1;fi;')
+        is_first_run=$(ssh -i "${key}" "root@${host}" 'if [ -z "$(ls -A '${server_dir}')" ];then echo 1;fi;')
 
         #if there are uncommitted shit on first run
         if [[ $is_first_run ]] && { [[ $(git ls-files -m) ]] || [[ $(git ls-files . --exclude-standard --others) ]]; }; then
@@ -61,17 +67,17 @@ if [[ "$use_git" = true ]]; then
 fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
-if [[ "$use_git" = true ]]; then
+if $use_git; then
     if [[ $(git diff --cached --exit-code) ]] && [[ -n "$1" ]] && [[ "$1" != " " ]];then
         git commit -m "$1"
     fi
 fi
 
 #add the ignore files from the config header var
-echo "$ignored_files" | tr ' ' '\n' > /tmp/comploy_ignore;
+echo "${ignored_files}" | tr ' ' '\n' > /tmp/comploy_ignore;
 #add modified files to the deploy blacklist
 
-if [[ "$use_git" = true ]]; then
+if $use_git; then
     git ls-files -m >> /tmp/comploy_ignore
     #add the untracked files to the deploy blacklist
     git ls-files . --exclude-standard --others >> /tmp/comploy_ignore
@@ -80,14 +86,19 @@ fi
 #sync the files
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
-    echo "Syncing with $host..."
-    rsync -e "ssh -i $key" -a --delete --exclude-from "/tmp/comploy_ignore" ./ root@$host:$server_dir
+    echo "Syncing with ${host}..."
+    rsync -e "ssh -i ${key}" -a --delete --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
 
     #set the correct folder permissions
-    ssh -i "$key" root@$host 'chown -R www-data:www-data /var/www;find /var/www -type f ! -perm 644 -exec chmod 644 {} \;;find /var/www -type d ! -perm 755 -exec chmod 755 {} \;;'
+    ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
+
+    #if we use composer, we should install the packages from composer.lock (and exclude dev packages)
+    if $use_composer; then
+        ssh -i "${key}" "root@${host}" "cd ${server_dir} && composer install --no-dev"
+    fi
 done
 
-if [[ "$use_git" = true ]]; then
+if $use_git; then
     git push
 fi
 
