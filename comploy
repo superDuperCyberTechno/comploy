@@ -14,10 +14,10 @@ declare -A hosts
 #customize by editing vars below
 
 #add files to NOT deploy here, seperate with a space.
-ignored_files='comploy *database.sqlite* *-journal'
+ignored_files='comploy'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
-#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* .env'
+#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* *database.sqlite* *-journal .env'
 
 #destination host domain/IP address and folder pairs
 #you can add multiple servers, one per line like this:
@@ -39,7 +39,7 @@ use_composer=true
 
 #███╗   ███╗ █████╗  ██████╗ ██╗ ██████╗
 #████╗ ████║██╔══██╗██╔════╝ ██║██╔════╝
-#██╔████╔██║███████║██║  ███╗██║██║     
+#██╔████╔██║███████║██║  ███╗██║██║
 #██║╚██╔╝██║██╔══██║██║   ██║██║██║     
 #██║ ╚═╝ ██║██║  ██║╚██████╔╝██║╚██████╗
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
@@ -55,7 +55,7 @@ if [ -z "${key}" ]; then
     key="${HOME}/.ssh/id_rsa"
 fi
 
-if $use_git ; then
+if $use_git; then
     for host in "${!hosts[@]}"; do
         server_dir="${hosts[$host]}"
         #detect if we already have deployed by checking if the folder's empty
@@ -71,18 +71,18 @@ fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
 if $use_git; then
-    if [[ $(git diff --cached --exit-code) ]] && [[ -n "$1" ]] && [[ "$1" != " " ]];then
-        git commit -m "$1"
+    if [[ $(git diff --cached --exit-code) ]] && [[ "${1}" ]] && [[ "${1}" != " " ]];then
+        git commit -m "${1}"
     fi
 fi
 
-#add the ignore files from the config header var
+#add the ignore files from the config header var (replace space with newline)
 echo "${ignored_files}" | tr ' ' '\n' > /tmp/comploy_ignore;
-#add modified files to the deploy blacklist
 
 if $use_git; then
+    #add all modified files to ignore list
     git ls-files -m >> /tmp/comploy_ignore
-    #add the untracked files to the deploy blacklist
+    #add the untracked files to the deploy ignore list
     git ls-files . --exclude-standard --others >> /tmp/comploy_ignore
 fi
 
