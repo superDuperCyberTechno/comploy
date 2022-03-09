@@ -5,22 +5,24 @@ declare -A hosts
 # This is free and unencumbered software released into the public domain.
 ##################################################################
 
-#  _____ ___  ____  _ ________
-# / ___/ __ \/ __ \/ _ / / __ `/
-#/ /__/ /_/ / / / / __/ / /_/ /
-#\___/\____/_/ /_/_/ /_/\__, /
-#                      /____/
+# ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
+#██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
+#██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+#██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+#╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+# ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
 #customize by editing vars below
 
 #add files to NOT deploy here, seperate with a space.
 ignored_files='comploy *database.sqlite* *-journal'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
-# ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* /vendor'
+#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* .env'
 
 #destination host domain/IP address and folder pairs
-#you can add multiple servers, one per line
-#add them as shown in below example:
+#you can add multiple servers, one per line like this:
+#hosts['HOST']='ABSOLUTE_PATH_TO_WEBSERVER_ROOT'
+#or:
 #hosts['google.com']='/var/www/google.com/html'
 hosts['']=''
 
@@ -35,11 +37,12 @@ use_composer=true
 
 ##################################################################
 
-#   ____ ___  ____  ____  ______
-#  / __ `__ \/ __ `/ __ `/ / ___/
-# / / / / / / /_/ / /_/ / / /__
-#/_/ /_/ /_/\__,_/\__, /_/\___/
-#                /____/
+#███╗   ███╗ █████╗  ██████╗ ██╗ ██████╗
+#████╗ ████║██╔══██╗██╔════╝ ██║██╔════╝
+#██╔████╔██║███████║██║  ███╗██║██║     
+#██║╚██╔╝██║██╔══██║██║   ██║██║██║     
+#██║ ╚═╝ ██║██║  ██║╚██████╔╝██║╚██████╗
+#╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
 #here be dragons, steel yourself
 
 #if we use composer, ignore the /vendor folder
