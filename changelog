@@ -1,0 +1,5 @@
+2.0
+- First registered version
+- Added support for Composer, comploy no auto-installs packages on execution.
+- Fixed bash conditionals.
+- Now uses the deployment folder for permission setup.
