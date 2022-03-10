@@ -7,9 +7,11 @@
  ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝
 comploy: commit and deploy
 ```
-_comploy_ is a Linux-only, simple, web development deployment script written in Bash, made to co-operate with Git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s). 
+_comploy_ is a Linux-only, simple, web development deployment script written in Bash, made to co-operate with Git. The premise is super simple; when set up and executed, _comploy_ will deploy your source code (up to last commit) to your designated server(s).
 
 It's kinda like an ultra lean [Deployer](https://deployer.org/)...
+
+It plays nice with [Composer](https://getcomposer.org/) and [Laravel](https://laravel.com/).
 
 ### Installation
 _comploy_ works on a per-project basis so you need a copy for each of your projects you need to deploy.
@@ -25,6 +27,8 @@ Optionally you can define the absolute local path to an SSH key (the `key` varia
 
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
+### Uninstallation
+_comploy_ just one file. Just delete _comploy_ from your project and it's gone.
 
 ### Usage
 Simply running _comploy_ will sync your project with the server, up to - but not including - files that have been added or changed since last commit. If you have a clean project (all files committed), it will sync everything.
@@ -54,6 +58,7 @@ cmp() {
 ... enabling you to simply write `cmp` instead of `./comploy`.
 
 ### Notes
-_comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
-
-_comploy_ needs the client machine SSH key to have root access to the deployment server.
+* _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
+* _comploy_ needs the client machine SSH key to have root access to the deployment server.
+* If you use [Composer](https://getcomposer.org/) you should now that _comploy_ auto installs your packages, server-side. This can be disabled by setting `use_composer` to `false` in the config.
+* You need to know how to set up a webserver in order to use _comploy_ effectively.
