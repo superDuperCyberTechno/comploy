@@ -60,5 +60,5 @@ cmp() {
 ### Notes
 * _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
 * _comploy_ needs the client machine SSH key to have root access to the deployment server.
-* If you use [Composer](https://getcomposer.org/) you should now that _comploy_ auto installs your packages, server-side. This can be disabled by setting `use_composer` to `false` in the config.
+* If you use [Composer](https://getcomposer.org/) you should now that _comploy_ auto installs your packages, server-side (it does so through the _www-data_ user). This can be disabled by setting `use_composer` to `false` in the config.
 * You need to know how to set up a webserver in order to use _comploy_ effectively.
