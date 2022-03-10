@@ -1,5 +1,5 @@
 2.0 (2022-03-10)
-- First registered version
-- Added support for Composer, comploy no auto-installs packages on execution.
+- First registered version.
+- Added support for Composer, comploy now auto-installs packages on execution.
 - Fixed bash conditionals.
 - Now uses the deployment folder for permission setup.
