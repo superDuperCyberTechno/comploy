@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 declare -A hosts
 
+# comploy 2.0
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
