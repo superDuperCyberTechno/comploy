@@ -97,7 +97,7 @@ for host in "${!hosts[@]}"; do
 
     #if we use composer, we should install the packages from composer.lock (and exclude dev packages)
     if $use_composer; then
-        ssh -i "${key}" "root@${host}" "cd ${server_dir} && composer install --no-dev"
+        ssh -i "${key}" "root@${host}" "cd ${server_dir} && sudo -u www-data composer install --no-dev"
     fi
 done
 
