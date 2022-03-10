@@ -57,6 +57,10 @@ cmp() {
 
 ... enabling you to simply write `cmp` instead of `./comploy`.
 
+### Requirements
+* Client side, [_rsync_](https://rsync.samba.org/) is required, Git is optional.
+* Server side, [Composer](https://getcomposer.org/) is optional.
+
 ### Notes
 * _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
 * _comploy_ needs the client machine SSH key to have root access to the deployment server.
