@@ -1,4 +1,4 @@
-2.0
+2.0 (2022-03-10)
 - First registered version
 - Added support for Composer, comploy no auto-installs packages on execution.
 - Fixed bash conditionals.
