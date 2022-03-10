@@ -28,7 +28,7 @@ Optionally you can define the absolute local path to an SSH key (the `key` varia
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
 ### Uninstallation
-_comploy_ just one file. Just delete _comploy_ from your project and it's gone.
+_comploy_ is just one file. Just delete _comploy_ from your project and it's gone.
 
 ### Usage
 Simply running _comploy_ will sync your project with the server, up to - but not including - files that have been added or changed since last commit. If you have a clean project (all files committed), it will sync everything.
