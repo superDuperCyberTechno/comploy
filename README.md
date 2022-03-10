@@ -33,7 +33,7 @@ _comploy_ just one file. Just delete _comploy_ from your project and it's gone.
 ### Usage
 Simply running _comploy_ will sync your project with the server, up to - but not including - files that have been added or changed since last commit. If you have a clean project (all files committed), it will sync everything.
 
-You can also bypass the Git integration by setting `use_git` to `false`. In that case, everything (except ignored of course) is synced, every time. [If `use_git` is true, _comploy_ will also try to push the codebase to your repo.](https://github.com/superDuperCyberTechno/comploy/blob/master/comploy#L90)
+You can also bypass the Git integration by setting `use_git` to `false`. In that case, everything (except ignored of course) is synced, every time. If `use_git` is true, _comploy_ will also try to push the codebase to your remote repository.
 
 You can pass a string argument (representing the commit message) to _comploy_ if you want to commit, push __and__ deploy at the same time. That - of course - is dependent on files actually being staged prior to execution. _comploy_ will then commit (if string argument has been passed) and deploy all unchanged (committed) files to the server:
 
