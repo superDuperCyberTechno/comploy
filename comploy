@@ -15,7 +15,7 @@ declare -A hosts
 #customize by editing vars below
 
 #add files to NOT deploy here, seperate with a space.
-ignored_files='comploy'
+ignored_files='comploy .git'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
 #ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* *database.sqlite* *-journal .env'
