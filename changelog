@@ -1,3 +1,6 @@
+2.2 (2022-03-11)
+- Composer now uses the `--optimize-autoloader` option when installing packages on the server.
+
 2.1 (2022-03-11)
 - Ignore .git folder if using git.
 
