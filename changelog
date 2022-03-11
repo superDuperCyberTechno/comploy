@@ -1,3 +1,6 @@
+2.1 (2022-03-11)
+- Ignore .git folder if using git.
+
 2.0 (2022-03-10)
 - First registered version.
 - Added support for Composer, comploy now auto-installs packages on execution.
