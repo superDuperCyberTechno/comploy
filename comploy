@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -A hosts
 
-# comploy 2.0
+# comploy 2.1
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -15,7 +15,7 @@ declare -A hosts
 #customize by editing vars below
 
 #add files to NOT deploy here, seperate with a space.
-ignored_files='comploy .git'
+ignored_files='comploy'
 
 #Laravel-specific excludes, uncomment to properly sync your Laravel project
 #ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* *database.sqlite* *-journal .env'
@@ -49,6 +49,10 @@ use_composer=true
 #if we use composer, ignore the /vendor folder
 if $use_composer; then
     ignored_files+=' /vendor'
+fi
+
+if $use_git; then
+    ignored_files+=' /.git'
 fi
 
 #if we haven't set the key, then simply use the local id_rsa
