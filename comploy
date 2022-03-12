@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -A hosts
 
-# comploy 2.2
+# comploy 2.3
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -95,7 +95,7 @@ fi
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     echo "Syncing with ${host}..."
-    rsync -e "ssh -i ${key}" -a --delete --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
+    rsync -e "ssh -i ${key}" -a --delete --delay-updates --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
 
     #set the correct folder permissions
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
