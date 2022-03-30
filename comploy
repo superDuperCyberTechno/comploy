@@ -51,7 +51,7 @@ post_deployment_commands="";
 #if we use composer, deploy production packages and autoloader
 if $use_composer; then
     echo "Installing production environment"
-    composer install --no-dev --optimize-autoloader
+    composer install --quiet --no-dev --optimize-autoloader
 fi
 
 if $use_git; then
@@ -110,7 +110,7 @@ done
 
 if $use_composer; then
     echo "Installing development environment"
-    composer install
+    composer install --quiet
 fi
 
 if $use_git; then
