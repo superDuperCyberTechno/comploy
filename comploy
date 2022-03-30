@@ -103,7 +103,7 @@ for host in "${!hosts[@]}"; do
     #set the correct folder permissions
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
 
-    if [[ -z "${commands}" ]];then
+    if [[ "${post_deployment_commands}" ]];then
         ssh -i "${key}" "root@${host}" "${post_deployment_commands}"
     fi
 done
