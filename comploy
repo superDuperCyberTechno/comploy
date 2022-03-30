@@ -104,6 +104,7 @@ for host in "${!hosts[@]}"; do
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
 
     if [[ "${post_deployment_commands}" ]];then
+        echo "Executing post deployment commands"
         ssh -i "${key}" "root@${host}" "${post_deployment_commands}"
     fi
 done
@@ -114,7 +115,8 @@ if $use_composer; then
 fi
 
 if $use_git; then
-    git push
+    echo "Pushing to Git repo"
+    git push --quiet
 fi
 
 #all is well
