@@ -48,9 +48,8 @@ post_deployment_commands="";
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
 #here be dragons, steel yourself
 
-#if we use composer, ignore the /vendor folder
+#if we use composer, deploy production packages and autoloader
 if $use_composer; then
-    ignored_files+=' /vendor'
     composer install --no-dev --optimize-autoloader
 fi
 
