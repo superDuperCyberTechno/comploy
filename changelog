@@ -1,3 +1,7 @@
+2.4 (2022-03-30)
+- On deployment, Composer now makes sure that the autoloader is optimized and that dev-packages are left out
+- It is now possible to execute custom serverside commands after deployment
+
 2.3 (2022-03-12)
 - rsync now uses the `--delay-updates` option to ensure better atomicity on deployment server.
 

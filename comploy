@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -A hosts
 
-# comploy 2.3
+# comploy 2.4
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -35,6 +35,8 @@ key=''
 use_git=true
 #if you use composer, this variable controls if you want to run composer install after deployment
 use_composer=true
+#if you need to execute something on the server after deployment, you can write the commands here
+post_deployment_commands="";
 
 ##################################################################
 
@@ -49,6 +51,7 @@ use_composer=true
 #if we use composer, ignore the /vendor folder
 if $use_composer; then
     ignored_files+=' /vendor'
+    composer install --no-dev --optimize-autoloader
 fi
 
 if $use_git; then
@@ -56,7 +59,7 @@ if $use_git; then
 fi
 
 #if we haven't set the key, then simply use the local id_rsa
-if [ -z "${key}" ]; then
+if [[ -z "${key}" ]]; then
     key="${HOME}/.ssh/id_rsa"
 fi
 
@@ -100,11 +103,14 @@ for host in "${!hosts[@]}"; do
     #set the correct folder permissions
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
 
-    #if we use composer, we should install the packages from composer.lock (and exclude dev packages)
-    if $use_composer; then
-        ssh -i "${key}" "root@${host}" "cd ${server_dir} && sudo -u www-data composer install --no-dev --optimize-autoloader"
+    if [[ -z "${commands}" ]];then
+        ssh -i "${key}" "root@${host}" "${post_deployment_commands}"
     fi
 done
+
+if $use_composer; then
+    composer install
+fi
 
 if $use_git; then
     git push
