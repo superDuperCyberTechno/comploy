@@ -50,7 +50,7 @@ post_deployment_commands="";
 
 #change to the directory of this file so all commands work as expected, making this file callable from wherever
 SCRIPT_PATH=$(dirname $(realpath "$0"))
-cd SCRIPT_PATH
+cd "$SCRIPT_PATH"
 
 #if we use composer, deploy production packages and autoloader
 if $use_composer; then
