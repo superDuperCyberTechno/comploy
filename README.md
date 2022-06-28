@@ -11,7 +11,7 @@ _comploy_ is a Linux-only, simple, web development deployment script written in 
 
 It's kinda like an ultra lean [Deployer](https://deployer.org/)...
 
-It plays nice with [Composer](https://getcomposer.org/) and [Laravel](https://laravel.com/).
+It plays nice with [Composer](https://getcomposer.org/) and [Laravel](https://laravel.com/). It's mostly geared towards PHP projects.
 
 ### Installation
 _comploy_ works on a per-project basis so you need a copy for each of your projects you need to deploy.
@@ -58,8 +58,7 @@ cmp() {
 ... enabling you to simply write `cmp` instead of `./comploy`.
 
 ### Requirements
-* Client side, [_rsync_](https://rsync.samba.org/) is required, Git is optional.
-* Server side, [Composer](https://getcomposer.org/) is optional.
+* Client side, [_rsync_](https://rsync.samba.org/) is required, Git and Composer is optional.
 
 ### Notes
 * _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
