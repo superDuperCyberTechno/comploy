@@ -1,3 +1,7 @@
+2.5 (2022-06-28)
+- Change directory to comploy on execution, making it possible to execute it
+from wherever
+
 2.4 (2022-03-30)
 - On deployment, Composer now makes sure that the autoloader is optimized and that dev-packages are left out
 - It is now possible to execute custom serverside commands after deployment
