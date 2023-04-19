@@ -36,7 +36,8 @@ use_git=true
 #if enabled, this option removes composer dev packages and optimizes the autoloader prior to deployment and restores the dev environment after
 use_composer=true
 #if you need to execute something on the server after deployment, you can write the commands here
-post_deployment_commands="";
+# post_deployment_commands='php /var/www/html/artisan queue:restart';
+post_deployment_commands='';
 
 ##################################################################
 
