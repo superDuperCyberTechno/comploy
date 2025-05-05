@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 declare -A hosts
 
-# comploy 2.5
+# comploy 2.6
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
+
 
 # ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
 #██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
@@ -13,6 +14,7 @@ declare -A hosts
 #╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
 # ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
 #customize by editing vars below
+
 
 #add files to NOT deploy here, seperate with a space.
 ignored_files='comploy'
@@ -39,7 +41,9 @@ use_composer=true
 # post_deployment_commands='php /var/www/html/artisan queue:restart';
 post_deployment_commands='';
 
+
 ##################################################################
+
 
 #███╗   ███╗ █████╗  ██████╗ ██╗ ██████╗
 #████╗ ████║██╔══██╗██╔════╝ ██║██╔════╝
@@ -48,6 +52,7 @@ post_deployment_commands='';
 #██║ ╚═╝ ██║██║  ██║╚██████╔╝██║╚██████╗
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
 #here be dragons, steel thyself
+
 
 #change to the directory of this file so all commands work as expected, making this file callable from wherever
 SCRIPT_PATH=$(dirname $(realpath "$0"))
@@ -59,6 +64,7 @@ if $use_composer; then
     composer install --quiet --no-dev --optimize-autoloader
 fi
 
+#if we use git, we want to also ignore the git folder
 if $use_git; then
     ignored_files+=' /.git'
 fi
@@ -68,6 +74,7 @@ if [[ -z "${key}" ]]; then
     key="${HOME}/.ssh/id_rsa"
 fi
 
+#this block is only for initial commits, to make sure we deploy a complete codebase on first deployment
 if $use_git; then
     for host in "${!hosts[@]}"; do
         server_dir="${hosts[$host]}"
@@ -84,8 +91,11 @@ fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
 if $use_git; then
-    if [[ $(git diff --cached --exit-code) ]] && [[ "${1}" ]] && [[ "${1}" != " " ]];then
-        git commit -m "${1}"
+    #if we're really lazy, omit the quotation marks for our commit message and just let this snippet squash it all together
+    commit_msg="'$*'"
+
+    if [[ $(git diff --cached --exit-code) ]] && [[ "${commit_msg}" ]] && [[ "${commit_msg}" != " " ]];then
+        git commit -m "${commit_msg}"
     fi
 fi
 
@@ -105,7 +115,7 @@ for host in "${!hosts[@]}"; do
     echo "Syncing with ${host}..."
     rsync -e "ssh -i ${key}" -a --delete --delay-updates --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
 
-    #set the correct folder permissions
+    #set the correct permissions
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
 
     if [[ "${post_deployment_commands}" ]];then
@@ -114,11 +124,13 @@ for host in "${!hosts[@]}"; do
     fi
 done
 
+#re-install the dev-environment
 if $use_composer; then
-    echo "Installing development environment"
+    echo "Installing development environment..."
     composer install --quiet
 fi
 
+#push to external repository
 if $use_git; then
     echo "Pushing to Git repo"
     git push --quiet
