@@ -23,7 +23,7 @@ wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comp
 
 Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored folders/files that will **not** be synchronized with the server. Ignored folders/files *must* be seperated by a space.
 
-Optionally you can define the absolute local path to an SSH key (the `key` variable) if your machine's key (\~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (\~/.ssh/id_rsa).
+_comploy_ will use the default machine key (\~/.ssh/id_rsa) to deploy. Optionally you can define the absolute local path to another SSH key (the `key` variable) for this purpose.
 
 Before you can use _comploy_ effectively, you need to execute it on a repository with no pending commits (IE: no staged files). You will be warned and denied execution if this requirement is not met. This is necessary since _comploy_ will not deploy any uncommitted, changed files. This forces us to provide the server with a complete codebase from the beginning.
 
@@ -61,7 +61,7 @@ cmp() {
 * Client side, [_rsync_](https://rsync.samba.org/) is required, Git and Composer is optional.
 
 ### Notes
-* _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project on synchronization.
-* _comploy_ needs the client machine SSH key to have root access to the deployment server.
-* If you use [Composer](https://getcomposer.org/) you should now that _comploy_ auto installs your packages, server-side (it does so through the _www-data_ user). This can be disabled by setting `use_composer` to `false` in the config.
+* _comploy_ sets user/group as `www-data:www-data`, `755` rights for folders and  `644` for files on the entire project folder on the server, when deploying.
+* _comploy_ needs the client machine SSH key to have root access to the deployment server (to streamline the permission setup).
+* _comploy_ will install the production version of the application (when using _composer_), locally. Then it syncs the project files and finally, re-installs the development version locally. This ensures local/server parity.
 * You need to know how to set up a webserver in order to use _comploy_ effectively.
