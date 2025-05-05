@@ -1,6 +1,8 @@
+2.6 (2025-05-05)
+- Added lazy-mode for commit messages; no need to enclose the commit message in quotation marks
+
 2.5 (2022-06-28)
-- Change directory to comploy on execution, making it possible to execute it
-from wherever
+- Change directory to comploy on execution, making it possible to execute it from wherever
 
 2.4 (2022-03-30)
 - On deployment, Composer now makes sure that the autoloader is optimized and that dev-packages are left out
