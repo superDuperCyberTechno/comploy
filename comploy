@@ -19,30 +19,48 @@ set -euo pipefail
 #customize by editing vars below
 
 
-#add files to NOT deploy here, seperate with a space.
-ignored_files='comploy'
-
-#Laravel-specific excludes, uncomment to properly sync your Laravel project
-#ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* *database.sqlite* *-journal .env'
-
-#destination host domain/IP address and folder pairs
-#you can add multiple servers, one per line like this:
-#hosts['HOST']='ABSOLUTE_PATH_TO_WEBSERVER_ROOT'
-#or:
-#hosts['google.com']='/var/www/google.com/html'
-#NOTE: comploy refuses to run until at least one host/server_dir pair above is uncommented
-
-#optionally define the absolute local path to the SSH key to access the deployment server(s)
+# CONFIG START
 key=''
-
-#if you don't wanna screw around with git and just want to synchronize with the server, disable git here
-#if set to true, it will also try to push to the repo
+hosts['']=''
+ignored_files='comploy'
 use_git=true
-#if enabled, this option removes composer dev packages and optimizes the autoloader prior to deployment and restores the dev environment after
 use_composer=true
-#if you need to execute something on the server after deployment, you can write the commands here
-# post_deployment_commands='php /var/www/html/artisan queue:restart';
 post_deployment_commands='';
+# CONFIG END
+
+# key
+# the key variable is a string containing the absolute path to the key file used for syncing with the server
+# default: ${HOME}/.ssh/id_rsa
+#
+# hosts
+# the hosts variable is used to designate all target hosts domain (or IP-address), - and deployment folder
+# you can add multiple servers, one per line like this:
+# hosts['HOST']='ABSOLUTE_PATH_TO_WEBSERVER_ROOT'
+# or:
+# hosts['google.com']='/var/www/google.com/html'
+# default: empty strings, won't run
+#
+# ignored_files
+# Laravel-specific excludes could look something like this...
+# ignored_files+=' /storage/framework/*/* /storage/app/* /storage/logs/* *database.sqlite* *-journal .env'
+# default: comploy itself is added the ignore list so we don't deploy it
+#
+# use_git
+# boolean setting that makes sure comploy does some simple housekeeping, like adding .git to ignore files, only syncing committed
+# files as well as making sure that we only deploy a clean repo (zero uncomitted changes) in first run. it also tries to push
+# to remote when deployment ends
+# default: true
+# 
+# use_composer
+# if enabled, this option removes composer dev packages and optimizes the autoloader prior to deployment.
+# it restores the dev environment after deployment
+# default: true
+# 
+# post_deployment_commands
+# if you need to execute something on the server after deployment, you can write the commands here
+# for a laravel app, this could look like the following (restart queue subsystem)...
+# post_deployment_commands='php /var/www/html/artisan queue:restart';
+# default: empty string (does nothing)
 
 
 ##################################################################
