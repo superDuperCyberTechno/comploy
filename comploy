@@ -4,10 +4,11 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 2.7
+# comploy 2.8
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
+
 
 # ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
 #██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
@@ -16,6 +17,7 @@ set -euo pipefail
 #╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
 # ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
 #customize by editing vars below
+
 
 #add files to NOT deploy here, seperate with a space.
 ignored_files='comploy'
@@ -39,9 +41,12 @@ use_git=true
 #if enabled, this option removes composer dev packages and optimizes the autoloader prior to deployment and restores the dev environment after
 use_composer=true
 #if you need to execute something on the server after deployment, you can write the commands here
-post_deployment_commands="";
+# post_deployment_commands='php /var/www/html/artisan queue:restart';
+post_deployment_commands='';
+
 
 ##################################################################
+
 
 #███╗   ███╗ █████╗  ██████╗ ██╗ ██████╗
 #████╗ ████║██╔══██╗██╔════╝ ██║██╔════╝
@@ -49,7 +54,8 @@ post_deployment_commands="";
 #██║╚██╔╝██║██╔══██║██║   ██║██║██║     
 #██║ ╚═╝ ██║██║  ██║╚██████╔╝██║╚██████╗
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
-#here be dragons, steel yourself
+#here be dragons, steel thyself
+
 
 #change to the directory of this file so all commands work as expected, making this file callable from wherever
 SCRIPT_PATH=$(dirname $(realpath "$0"))
@@ -99,18 +105,18 @@ update_comploy() {
 
     # extract the active (non-comment) config assignments from the current file
     awk '/^#customize by editing vars below$/{in_cfg=1; next}
-         /^#here be dragons, steel yourself$/{in_cfg=0}
+         /^#here be dragons, steel thyself$/{in_cfg=0}
          in_cfg && $0 !~ /^[[:space:]]*#/ && NF {print}' "${me}" > "${cfg_file}"
 
     # in the download, drop the config assignments that we are porting...
     awk '/^#customize by editing vars below$/{in_cfg=1}
-         /^#here be dragons, steel yourself$/{in_cfg=0}
+         /^#here be dragons, steel thyself$/{in_cfg=0}
          in_cfg && ($0 ~ /^(ignored_files|key|use_git|use_composer|post_deployment_commands)(\+?)=/ || $0 ~ /^hosts\[/){next}
          {print}' "${new_file}" > "${merged_file}"
 
     # ...then insert the user's assignments before the end-of-config marker
     awk -v cfg="${cfg_file}" '
-         /^#here be dragons, steel yourself$/{if(!inserted){while((getline line < cfg)>0) print line; close(cfg); inserted=1}}
+         /^#here be dragons, steel thyself$/{if(!inserted){while((getline line < cfg)>0) print line; close(cfg); inserted=1}}
          {print}' "${merged_file}" > "${tmp}/comploy.final"
 
     # everything ported must survive the merge, and the result must parse
@@ -173,6 +179,7 @@ if $use_composer; then
     composer install --quiet --no-dev --optimize-autoloader
 fi
 
+#if we use git, we want to also ignore the git folder
 if $use_git; then
     ignored_files+=' /.git'
 fi
@@ -182,6 +189,7 @@ if [[ -z "${key}" ]]; then
     key="${HOME}/.ssh/id_rsa"
 fi
 
+#this block is only for initial commits, to make sure we deploy a complete codebase on first deployment
 if $use_git; then
     for host in "${!hosts[@]}"; do
         server_dir="${hosts[$host]}"
@@ -198,8 +206,11 @@ fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
 if $use_git; then
-    if [[ $(git diff --cached --exit-code) ]] && [[ "${1:-}" ]] && [[ "${1:-}" != " " ]];then
-        git commit -m "${1}"
+    #if we're really lazy, omit the quotation marks for our commit message and just let this snippet squash it all together
+    commit_msg="'$*'"
+
+    if [[ $(git diff --cached --exit-code) ]] && [[ "${commit_msg}" ]] && [[ "${commit_msg}" != " " ]];then
+        git commit -m "${commit_msg}"
     fi
 fi
 
@@ -221,7 +232,7 @@ for host in "${!hosts[@]}"; do
     # home directory or filesystem root, so --delete can only touch the target
     rsync -e "ssh -i ${key}" -a --delete --delay-updates --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
 
-    #set the correct folder permissions
+    #set the correct permissions
     ssh -i "${key}" "root@${host}" "chown -R www-data:www-data ${server_dir};find ${server_dir} -type f ! -perm 644 -exec chmod 644 {} \;;find ${server_dir} -type d ! -perm 755 -exec chmod 755 {} \;;"
 
     if [[ "${post_deployment_commands}" ]];then
@@ -230,11 +241,13 @@ for host in "${!hosts[@]}"; do
     fi
 done
 
+#re-install the dev-environment
 if $use_composer; then
-    echo "Installing development environment"
+    echo "Installing development environment..."
     composer install --quiet
 fi
 
+#push to external repository
 if $use_git; then
     echo "Pushing to Git repo"
     git push --quiet

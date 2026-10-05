@@ -1,3 +1,7 @@
+2.8 (2026-10-05)
+- Merged upstream changes: lazy-mode commit messages (no quotation marks
+  needed around the message), updated README, comments, and changelog
+
 2.7 (2026-10-05)
 - New: `comploy --update` (or `-u`) downloads the latest comploy from its
   repository and replaces this file, porting the user config (hosts,
@@ -14,9 +18,11 @@
 - Added `set -euo pipefail` so failing ssh/rsync/composer/git commands stop
   execution instead of silently continuing and reporting success.
 
+2.6 (2025-05-05)
+- Added lazy-mode for commit messages; no need to enclose the commit message in quotation marks
+
 2.5 (2022-06-28)
-- Change directory to comploy on execution, making it possible to execute it
-from wherever
+- Change directory to comploy on execution, making it possible to execute it from wherever
 
 2.4 (2022-03-30)
 - On deployment, Composer now makes sure that the autoloader is optimized and that dev-packages are left out
