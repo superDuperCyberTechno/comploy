@@ -47,6 +47,16 @@ Or, if you have already committed manually:
 ./comploy
 ```
 
+### Updating comploy itself
+
+To update _comploy_ to the latest version from its repository:
+
+```
+./comploy --update
+```
+
+This downloads the newest _comploy_, copies your config (`hosts`, `key`, `use_git`, `use_composer`, `ignored_files`, `post_deployment_commands`) onto it, and replaces this file. The previous version is kept as `comploy.bak` next to it.
+
 An even simpler solution is to add the following function to your `.bashrc`:
 
 ```

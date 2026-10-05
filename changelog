@@ -1,3 +1,11 @@
+2.7 (2026-10-05)
+- New: `comploy --update` (or `-u`) downloads the latest comploy from its
+  repository and replaces this file, porting the user config (hosts,
+  ignored_files, key, use_git, use_composer, post_deployment_commands) onto
+  the new version. The previous version is kept as comploy.bak.
+- The download source can be overridden with the COMPLOY_UPDATE_URL
+  environment variable (for mirrors or local testing).
+
 2.6 (2026-10-05)
 - Validate host config before any sync; skip or abort on empty/invalid host or
   server_dir entries, refuse to sync to the filesystem root. Prevents the

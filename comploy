@@ -4,7 +4,7 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 2.6
+# comploy 2.7
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -51,6 +51,95 @@ post_deployment_commands="";
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
 #here be dragons, steel yourself
 
+#change to the directory of this file so all commands work as expected, making this file callable from wherever
+SCRIPT_PATH=$(dirname $(realpath "$0"))
+cd "$SCRIPT_PATH"
+
+# Update comploy itself from its repository, keeping this file's user config.
+# The config variable assignments (hosts, ignored_files, key, use_git,
+# use_composer, post_deployment_commands) are copied onto the newest version
+# before this file is replaced. The previous version is kept as a comploy.bak
+# next to this file. The download source can be overridden with the
+# COMPLOY_UPDATE_URL environment variable (for mirrors or local testing).
+update_comploy() {
+    url="${COMPLOY_UPDATE_URL:-https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy}"
+    me="$(realpath "$0")"
+    tmp="$(mktemp -d)"
+    trap 'rm -rf "${tmp}"' EXIT
+    new_file="${tmp}/comploy.new"
+    merged_file="${tmp}/comploy.merged"
+    cfg_file="${tmp}/comploy.cfg"
+
+    echo "Downloading latest comploy from ${url}..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL "${url}" -o "${new_file}"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q "${url}" -O "${new_file}"
+    else
+        echo "ERROR: update needs curl or wget to download" >&2
+        return 1
+    fi
+
+    # the download has to look like comploy and parse cleanly
+    if ! bash -n "${new_file}" 2>/dev/null || ! grep -q '^declare -A hosts' "${new_file}"; then
+        echo "ERROR: downloaded file is not a valid comploy script; nothing changed" >&2
+        return 1
+    fi
+
+    old_ver="$(sed -n '/^# comploy /{s/^# comploy //p;q;}' "${me}")"
+    new_ver="$(sed -n '/^# comploy /{s/^# comploy //p;q;}' "${new_file}")"
+    if [[ -z "${new_ver}" ]]; then
+        echo "ERROR: could not determine the version of the downloaded file" >&2
+        return 1
+    fi
+    if [[ "${old_ver}" == "${new_ver}" ]]; then
+        echo "Already up to date (comploy ${new_ver})"
+        return 0
+    fi
+
+    # extract the active (non-comment) config assignments from the current file
+    awk '/^#customize by editing vars below$/{in_cfg=1; next}
+         /^#here be dragons, steel yourself$/{in_cfg=0}
+         in_cfg && $0 !~ /^[[:space:]]*#/ && NF {print}' "${me}" > "${cfg_file}"
+
+    # in the download, drop the config assignments that we are porting...
+    awk '/^#customize by editing vars below$/{in_cfg=1}
+         /^#here be dragons, steel yourself$/{in_cfg=0}
+         in_cfg && ($0 ~ /^(ignored_files|key|use_git|use_composer|post_deployment_commands)(\+?)=/ || $0 ~ /^hosts\[/){next}
+         {print}' "${new_file}" > "${merged_file}"
+
+    # ...then insert the user's assignments before the end-of-config marker
+    awk -v cfg="${cfg_file}" '
+         /^#here be dragons, steel yourself$/{if(!inserted){while((getline line < cfg)>0) print line; close(cfg); inserted=1}}
+         {print}' "${merged_file}" > "${tmp}/comploy.final"
+
+    # everything ported must survive the merge, and the result must parse
+    for v in ignored_files key use_git use_composer post_deployment_commands; do
+        if ! grep -q "^${v}=" "${tmp}/comploy.final"; then
+            echo "ERROR: '${v}' missing after merge; download may be incompatible, keeping the current version" >&2
+            return 1
+        fi
+    done
+    if ! bash -n "${tmp}/comploy.final" 2>/dev/null; then
+        echo "ERROR: merged comploy failed syntax check; keeping the current version" >&2
+        return 1
+    fi
+
+    cp -p "${me}" "${me}.bak"
+    mv "${tmp}/comploy.final" "${me}"
+    chmod --reference "${me}.bak" "${me}" 2>/dev/null || chmod +x "${me}"
+    echo "Updated comploy from ${old_ver} to ${new_ver}. Previous version kept as ${me}.bak"
+    echo "Run comploy again (without --update) to deploy."
+}
+
+# ./comploy --update (or -u) updates comploy itself, then exits
+case "${1:-}" in
+    --update|-u)
+        update_comploy
+        exit 0
+        ;;
+esac
+
 # Validate the host config before anything destructive happens. An empty or
 # relative server_dir would make `rsync --delete` target the wrong place - in
 # the worst case the server's home directory or filesystem root - so refuse to
@@ -77,10 +166,6 @@ if [[ "${valid_hosts}" -eq 0 ]]; then
     echo "ERROR: no valid hosts configured. Add at least one host/server_dir pair to the hosts array before running comploy." >&2
     exit 1
 fi
-
-#change to the directory of this file so all commands work as expected, making this file callable from wherever
-SCRIPT_PATH=$(dirname $(realpath "$0"))
-cd "$SCRIPT_PATH"
 
 #if we use composer, deploy production packages and autoloader
 if $use_composer; then
