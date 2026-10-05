@@ -1,14 +1,18 @@
 # TODO
 
-Potential problems found in the `comploy` executable (v2.5).
+Potential problems found in the `comploy` executable (v2.6). Items marked FIXED were addressed in 2.6.
 
 ## 1. Critical (data loss / destructive)
 
-### 1.1 Empty default host entry can wipe server home directory
+### 1.1 Empty default host entry can wipe server home directory **[FIXED in 2.6]**
 Config ships with `hosts['']=''` (line 28). During sync, `rsync -a --delete ./ root@${host}:${server_dir}` (line 105) -- if a host is set but `server_dir` left blank, destination becomes `root@host:` = `/root`, and `--delete` wipes everything there. Empty `host` also produces `ssh root@` (line 74) which fails, and script continues regardless.
 
-### 1.2 No error handling anywhere, and unconditional success message
+Fix: placeholder removed; host config is validated up front (empty/relative/root `server_dir` entries are skipped or abort) and execution stops with an error when no valid hosts remain.
+
+### 1.2 No error handling anywhere, and unconditional success message **[FIXED in 2.6]**
 No `set -e`, no exit-code checks on `ssh`, `rsync`, `git push`, `composer`, or `chown`. If rsync fails (network error, missing key, permission denied), the script still runs remote `chown`/post-deploy commands, still runs `git push`, and unconditionally prints "Project synced and ready to go!". Failures are silent and misreported.
+
+Fix: `set -euo pipefail` added; any failing ssh/rsync/composer/git command aborts before later steps run.
 
 ## 2. High (correctness)
 
@@ -53,7 +57,7 @@ Rsync exclude entries without a leading `/` match basenames everywhere -- a modi
 ### 3.6 `declare -A` requires bash 4+
 Line 2; fails on bash 3.2 (default macOS). README declares Linux-only, so a portability note only.
 
-### 3.7 `ssh` failure during first-run detection is treated as "not first run"
+### 3.7 `ssh` failure during first-run detection is treated as "not first run" **[FIXED in 2.6]**
 Line 74. The dirty-repo abort is silently skipped, and sync proceeds into a dead-end.
 
 ### 3.8 Multiple hosts are non-atomic
@@ -65,14 +69,16 @@ Line 108. Resets server-side permission tweaks, churns the whole tree, and is sl
 ### 3.10 Symlink hazards
 `-a` preserves local symlinks; with `--delete`, a missing/mismatched local symlink (e.g., Laravel `storage`) can orphan or delete the server-side link target.
 
-### 3.11 `cd "$SCRIPT_PATH"` with no error check
+### 3.11 `cd "$SCRIPT_PATH"` with no error check **[FIXED in 2.6]**
 Line 53. Script must live exactly in repo root; deployed content silently wrong otherwise.
 
-### 3.12 Post-deployment commands exit status ignored
+### 3.12 Post-deployment commands exit status ignored **[FIXED in 2.6]**
 Line 112. A failing remote command is never reported.
 
-### 3.13 No dry-run or confirmation before destructive `--delete` sync
+### 3.13 No dry-run or confirmation before destructive `--delete` sync **[FIXED in 2.6]**
 One wrong config key wipes a remote directory (#1.1).
+
+Fix: sync is refused unless every `server_dir` is a non-empty absolute path other than `/`.
 
 ### 3.14 `ignored_files` is space-separated
 Line 22. Cannot ignore any filename containing a space.

@@ -1,0 +1,2 @@
+- Maintain the changelog file for any new update
+- Maintain a version number across files (changelog, comploy etc.), important to keep track of when bumping it

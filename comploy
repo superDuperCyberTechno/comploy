@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 declare -A hosts
 
-# comploy 2.5
+# stop on any error, unset variable, or failed pipe - no silent failures
+set -euo pipefail
+
+# comploy 2.6
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -25,7 +28,7 @@ ignored_files='comploy'
 #hosts['HOST']='ABSOLUTE_PATH_TO_WEBSERVER_ROOT'
 #or:
 #hosts['google.com']='/var/www/google.com/html'
-hosts['']=''
+#NOTE: comploy refuses to run until at least one host/server_dir pair above is uncommented
 
 #optionally define the absolute local path to the SSH key to access the deployment server(s)
 key=''
@@ -47,6 +50,33 @@ post_deployment_commands="";
 #██║ ╚═╝ ██║██║  ██║╚██████╔╝██║╚██████╗
 #╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
 #here be dragons, steel yourself
+
+# Validate the host config before anything destructive happens. An empty or
+# relative server_dir would make `rsync --delete` target the wrong place - in
+# the worst case the server's home directory or filesystem root - so refuse to
+# run with missing or invalid entries.
+valid_hosts=0
+for host in "${!hosts[@]}"; do
+    server_dir="${hosts[$host]}"
+    if [[ -z "${host}" ]] || [[ -z "${server_dir}" ]]; then
+        echo "WARNING: skipping invalid host entry ('${host}' -> '${server_dir}'); remove it or fill in both host and server_dir" >&2
+        unset "hosts[$host]"
+        continue
+    fi
+    if [[ "${server_dir}" != /* ]]; then
+        echo "ERROR: server_dir '${server_dir}' for host '${host}' must be an absolute path starting with '/' (e.g. /var/www/example/html)" >&2
+        exit 1
+    fi
+    if [[ "${server_dir}" == "/" ]]; then
+        echo "ERROR: server_dir for host '${host}' must not be the filesystem root '/'">&2
+        exit 1
+    fi
+    valid_hosts=$((valid_hosts + 1))
+done
+if [[ "${valid_hosts}" -eq 0 ]]; then
+    echo "ERROR: no valid hosts configured. Add at least one host/server_dir pair to the hosts array before running comploy." >&2
+    exit 1
+fi
 
 #change to the directory of this file so all commands work as expected, making this file callable from wherever
 SCRIPT_PATH=$(dirname $(realpath "$0"))
@@ -83,7 +113,7 @@ fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
 if $use_git; then
-    if [[ $(git diff --cached --exit-code) ]] && [[ "${1}" ]] && [[ "${1}" != " " ]];then
+    if [[ $(git diff --cached --exit-code) ]] && [[ "${1:-}" ]] && [[ "${1:-}" != " " ]];then
         git commit -m "${1}"
     fi
 fi
@@ -102,6 +132,8 @@ fi
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     echo "Syncing with ${host}..."
+    # server_dir is validated above to be a non-empty absolute path, never the
+    # home directory or filesystem root, so --delete can only touch the target
     rsync -e "ssh -i ${key}" -a --delete --delay-updates --exclude-from "/tmp/comploy_ignore" ./ "root@${host}:${server_dir}"
 
     #set the correct folder permissions

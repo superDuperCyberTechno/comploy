@@ -21,7 +21,7 @@ To install it in your project, simply run the following command in the root of y
 wget https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy && chmod +x comploy
 ```
 
-Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored folders/files that will **not** be synchronized with the server. Ignored folders/files *must* be seperated by a space.
+Open the file and edit the `hosts` variable found in the config section. - Here you will also be able to assign ignored folders/files that will **not** be synchronized with the server. Ignored folders/files *must* be seperated by a space. _comploy_ refuses to run until at least one valid `host`/absolute-path `server_dir` pair is configured (empty or relative paths are skipped or rejected before anything is synced).
 
 Optionally you can define the absolute local path to an SSH key (the `key` variable) if your machine's key (\~/.ssh/id_rsa) isn't a verified key on the server side. - If this option is left empty, _comploy_ will use the default machine key (\~/.ssh/id_rsa).
 

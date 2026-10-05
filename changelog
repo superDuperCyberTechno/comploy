@@ -1,3 +1,11 @@
+2.6 (2026-10-05)
+- Validate host config before any sync; skip or abort on empty/invalid host or
+  server_dir entries, refuse to sync to the filesystem root. Prevents the
+  empty default `hosts['']=''` entry from letting `rsync --delete` wipe a
+  server home directory.
+- Added `set -euo pipefail` so failing ssh/rsync/composer/git commands stop
+  execution instead of silently continuing and reporting success.
+
 2.5 (2022-06-28)
 - Change directory to comploy on execution, making it possible to execute it
 from wherever
