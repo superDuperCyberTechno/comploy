@@ -1,10 +1,14 @@
+2.10.0 (2026-10-05)
+- The updater replaces the user config variables in place in the downloaded
+  file, keeping the new version comments and examples intact
+- First-deploy dirty-repo check now runs before composer swaps to production,
+  so an abort no longer leaves the local dev environment in production state
+
 2.9.0 (2026-10-05)
 - Adopted semantic versioning (MAJOR.MINOR.PATCH); entries below use the old
   two-number format
 - The updater now compares versions numerically: '2.8' and '2.8.0' are treated
   as equal, downgrades are refused, and unparseable versions are rejected
-- The updater replaces the user config variables in place in the downloaded
-  file, keeping the new version comments and examples intact
 
 2.8.0 (2026-10-05)
 - Merged upstream changes: lazy-mode commit messages (no quotation marks

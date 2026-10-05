@@ -16,8 +16,10 @@ Fix: `set -euo pipefail` added; any failing ssh/rsync/composer/git command abort
 
 ## 2. High (correctness)
 
-### 2.1 Abort path leaves local project in production composer state
+### 2.1 Abort path leaves local project in production composer state **[FIXED in 2.9.0]**
 `composer install --no-dev --optimize-autoloader` (line 58) runs *before* the first-deploy dirty-repo abort check (line 77). On abort (`exit 1`, line 79) the dev environment is never restored -- local dev packages are gone.
+
+Fix: the first-deploy dirty-repo check now runs before composer swaps the local packages to production, so on abort nothing local has been changed.
 
 ### 2.2 Composer runs unconditionally
 Lines 56-59 execute even when composer is not installed, `composer.lock` absent, or `hosts` empty. Failure is ignored and disaster (#1.1) still attempted.

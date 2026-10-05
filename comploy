@@ -4,7 +4,7 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 2.9.0
+# comploy 2.10.0
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -231,12 +231,6 @@ if [[ "${valid_hosts}" -eq 0 ]]; then
     exit 1
 fi
 
-#if we use composer, deploy production packages and autoloader
-if $use_composer; then
-    echo "Installing production environment"
-    composer install --quiet --no-dev --optimize-autoloader
-fi
-
 #if we use git, we want to also ignore the git folder
 if $use_git; then
     ignored_files+=' /.git'
@@ -248,6 +242,7 @@ if [[ -z "${key}" ]]; then
 fi
 
 #this block is only for initial commits, to make sure we deploy a complete codebase on first deployment
+#(runs before composer swaps the local packages to production, so an abort leaves the dev environment intact)
 if $use_git; then
     for host in "${!hosts[@]}"; do
         server_dir="${hosts[$host]}"
@@ -260,6 +255,12 @@ if $use_git; then
             exit 1
         fi
     done
+fi
+
+#if we use composer, deploy production packages and autoloader
+if $use_composer; then
+    echo "Installing production environment"
+    composer install --quiet --no-dev --optimize-autoloader
 fi
 
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
