@@ -4,7 +4,7 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 2.8
+# comploy 2.9.0
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -67,6 +67,26 @@ cd "$SCRIPT_PATH"
 # before this file is replaced. The previous version is kept as a comploy.bak
 # next to this file. The download source can be overridden with the
 # COMPLOY_UPDATE_URL environment variable (for mirrors or local testing).
+# Versions are compared as semantic versions (MAJOR.MINOR.PATCH); the old
+# two-number format (e.g. 2.8) is treated as MAJOR.MINOR.0.
+
+# exit 0 if $1 > $2, where both are versions of the form N, N.N or N.N.N
+semver_gt() {
+    local -a ver_a ver_b
+    local i
+    IFS='.' read -ra ver_a <<< "${1}"
+    IFS='.' read -ra ver_b <<< "${2}"
+    for i in 0 1 2; do
+        if (( ${ver_a[i]:-0} > ${ver_b[i]:-0} )); then
+            return 0
+        fi
+        if (( ${ver_a[i]:-0} < ${ver_b[i]:-0} )); then
+            return 1
+        fi
+    done
+    return 1
+}
+
 update_comploy() {
     url="${COMPLOY_UPDATE_URL:-https://raw.githubusercontent.com/superDuperCyberTechno/comploy/master/comploy}"
     me="$(realpath "$0")"
@@ -94,11 +114,20 @@ update_comploy() {
 
     old_ver="$(sed -n '/^# comploy /{s/^# comploy //p;q;}' "${me}")"
     new_ver="$(sed -n '/^# comploy /{s/^# comploy //p;q;}' "${new_file}")"
-    if [[ -z "${new_ver}" ]]; then
-        echo "ERROR: could not determine the version of the downloaded file" >&2
+    if [[ -z "${new_ver}" ]] || ! [[ "${new_ver}" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+        echo "ERROR: downloaded file has an unparseable version '${new_ver}'; nothing changed" >&2
         return 1
     fi
-    if [[ "${old_ver}" == "${new_ver}" ]]; then
+    if ! [[ "${old_ver}" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+        echo "ERROR: this file has an unparseable version '${old_ver}'; refusing to update" >&2
+        return 1
+    fi
+    if semver_gt "${new_ver}" "${old_ver}"; then
+        echo "New version available: comploy ${old_ver} -> ${new_ver}"
+    elif semver_gt "${old_ver}" "${new_ver}"; then
+        echo "Installed comploy ${old_ver} is newer than ${new_ver}; not downgrading"
+        return 0
+    else
         echo "Already up to date (comploy ${new_ver})"
         return 0
     fi

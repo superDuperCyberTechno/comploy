@@ -1,4 +1,10 @@
-2.8 (2026-10-05)
+2.9.0 (2026-10-05)
+- Adopted semantic versioning (MAJOR.MINOR.PATCH); entries below use the old
+  two-number format
+- The updater now compares versions numerically: '2.8' and '2.8.0' are treated
+  as equal, downgrades are refused, and unparseable versions are rejected
+
+2.8.0 (2026-10-05)
 - Merged upstream changes: lazy-mode commit messages (no quotation marks
   needed around the message), updated README, comments, and changelog
 - Fixed lazy-mode commit messages no longer wrapped in literal quote
