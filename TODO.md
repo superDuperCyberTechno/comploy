@@ -21,8 +21,10 @@ Fix: `set -euo pipefail` added; any failing ssh/rsync/composer/git command abort
 
 Fix: the first-deploy dirty-repo check now runs before composer swaps the local packages to production, so on abort nothing local has been changed.
 
-### 2.2 Composer runs unconditionally
+### 2.2 Composer runs unconditionally **[FIXED in 3.0.0]**
 Lines 56-59 execute even when composer is not installed, `composer.lock` absent, or `hosts` empty. Failure is ignored and disaster (#1.1) still attempted.
+
+Fix: `use_composer` pre-checks that composer is installed and that composer.json exists in the project root, aborting with a fitting error otherwise; empty `hosts` aborts during config validation before composer ever runs.
 
 ### 2.3 `chmod 644` strips execute bits from all files server-side
 Line 108. `vendor/bin/*` scripts, `artisan`, and any executable lose `+x` on every deploy. Setting `644` on files rsync just wrote with `-a` also defeats `-a`'s permission preservation.

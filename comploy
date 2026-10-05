@@ -4,7 +4,7 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 3.0.0
+# comploy 3.0.1
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -264,6 +264,14 @@ fi
 
 #if we use composer, deploy production packages and autoloader
 if $use_composer; then
+    if ! command -v composer >/dev/null 2>&1; then
+        echo "ERROR: use_composer is enabled but composer is not installed" >&2
+        exit 1
+    fi
+    if [[ ! -f "composer.json" ]]; then
+        echo "ERROR: use_composer is enabled but no composer.json exists in the project root" >&2
+        exit 1
+    fi
     echo "Installing production environment"
     composer install --quiet --no-dev --optimize-autoloader
 fi

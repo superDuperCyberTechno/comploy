@@ -1,3 +1,8 @@
+3.0.1 (2026-10-05)
+- `use_composer` now pre-checks that composer is installed and that
+  composer.json exists in the project root, aborting with a fitting error
+  otherwise (TODO 2.2)
+
 3.0.0 (2026-10-05)
 - Config section restructured: the config variables now live in a single
   block between `# CONFIG START` and `# CONFIG END` markers, followed by
