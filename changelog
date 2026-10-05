@@ -1,6 +1,8 @@
 2.8 (2026-10-05)
 - Merged upstream changes: lazy-mode commit messages (no quotation marks
   needed around the message), updated README, comments, and changelog
+- Fixed lazy-mode commit messages no longer wrapped in literal quote
+  characters (`commit_msg="$*"` instead of `commit_msg="'$*'"`)
 
 2.7 (2026-10-05)
 - New: `comploy --update` (or `-u`) downloads the latest comploy from its

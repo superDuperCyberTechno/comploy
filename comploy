@@ -207,7 +207,7 @@ fi
 #if you provide comploy with an argument (string), use it as commit message if there's staged files. otherwise, simply deploy all unchanged files (since last commit)
 if $use_git; then
     #if we're really lazy, omit the quotation marks for our commit message and just let this snippet squash it all together
-    commit_msg="'$*'"
+    commit_msg="$*"
 
     if [[ $(git diff --cached --exit-code) ]] && [[ "${commit_msg}" ]] && [[ "${commit_msg}" != " " ]];then
         git commit -m "${commit_msg}"
