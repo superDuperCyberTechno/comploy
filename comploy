@@ -4,7 +4,7 @@ declare -A hosts
 # stop on any error, unset variable, or failed pipe - no silent failures
 set -euo pipefail
 
-# comploy 2.10.0
+# comploy 3.0.0
 # https://github.com/superDuperCyberTechno/comploy
 # This is free and unencumbered software released into the public domain.
 ##################################################################
@@ -21,7 +21,7 @@ set -euo pipefail
 
 # CONFIG START
 key=''
-hosts['']=''
+hosts['host.name']='absolue/path'
 ignored_files='comploy'
 use_git=true
 use_composer=true
@@ -30,7 +30,7 @@ post_deployment_commands='';
 
 # key
 # the key variable is a string containing the absolute path to the key file used for syncing with the server
-# default: ${HOME}/.ssh/id_rsa
+# default: empty string, comploy itself will try ${HOME}/.ssh/id_rsa if this isn't updated
 #
 # hosts
 # the hosts variable is used to designate all target hosts domain (or IP-address), - and deployment folder
@@ -38,7 +38,7 @@ post_deployment_commands='';
 # hosts['HOST']='ABSOLUTE_PATH_TO_WEBSERVER_ROOT'
 # or:
 # hosts['google.com']='/var/www/google.com/html'
-# default: empty strings, won't run
+# default: placeholders, must be updated, will fail if they aren't
 #
 # ignored_files
 # Laravel-specific excludes could look something like this...
@@ -49,12 +49,12 @@ post_deployment_commands='';
 # boolean setting that makes sure comploy does some simple housekeeping, like adding .git to ignore files, only syncing committed
 # files as well as making sure that we only deploy a clean repo (zero uncomitted changes) in first run. it also tries to push
 # to remote when deployment ends
-# default: true
+# default: true, git is assumed to be used
 # 
 # use_composer
 # if enabled, this option removes composer dev packages and optimizes the autoloader prior to deployment.
 # it restores the dev environment after deployment
-# default: true
+# default: true, composer is assumed to be used
 # 
 # post_deployment_commands
 # if you need to execute something on the server after deployment, you can write the commands here
@@ -149,49 +149,32 @@ update_comploy() {
         return 0
     fi
 
-    # extract the active (non-comment) config assignments from the current file
-    awk '/^#customize by editing vars below$/{in_cfg=1; next}
-         /^#here be dragons, steel thyself$/{in_cfg=0}
-         in_cfg && $0 !~ /^[[:space:]]*#/ && NF {print}' "${me}" > "${cfg_file}"
+    # the user config is the block between the CONFIG START/END markers; both
+    # files must use that format
+    if ! grep -q '^# CONFIG START$' "${me}" || ! grep -q '^# CONFIG END$' "${me}"; then
+        echo "ERROR: this file has no CONFIG markers, cannot port the config; keeping the current version" >&2
+        return 1
+    fi
+    if ! grep -q '^# CONFIG START$' "${new_file}" || ! grep -q '^# CONFIG END$' "${new_file}"; then
+        echo "ERROR: downloaded file uses an unsupported config format (no CONFIG markers); nothing changed" >&2
+        return 1
+    fi
 
-    # in the download, replace the ported config assignments in place: the
-    # user's scalar values overwrite the download's own assignments wherever
-    # they appear (keeping the surrounding comments), and the user's hosts
-    # entries are dropped in at the hosts spot; comments and examples of the
-    # new version stay untouched
+    # copy the user's config block and splice it over the download's own block
+    sed -n '/^# CONFIG START$/,/^# CONFIG END$/p' "${me}" > "${cfg_file}"
+
     awk -v cfg="${cfg_file}" '
-        BEGIN {
-            # load the user config, grouped by variable name
-            while ((getline line < cfg) > 0) {
-                if (line ~ /^hosts\[/) {
-                    user_hosts[nh++] = line
-                } else {
-                    name = line
-                    sub(/=.*/, "", name)
-                    sub(/\+$/, "", name)
-                    user_lines[name] = user_lines[name] (user_lines[name] ? "\n" : "") line
-                }
+        /^# CONFIG START$/ {
+            if (!inserted) {
+                while ((getline line < cfg) > 0) print line
+                close(cfg)
+                inserted = 1
             }
-            close(cfg)
-            in_cfg = 0
-            hosts_done = 0
-        }
-        /^#customize by editing vars below$/{in_cfg = 1}
-        /^#here be dragons, steel thyself$/{in_cfg = 0; if (!hosts_done) { for (i = 0; i < nh; i++) print user_hosts[i]; hosts_done = 1 } }
-        in_cfg && $0 ~ /^key=/ && !hosts_done { for (i = 0; i < nh; i++) print user_hosts[i]; hosts_done = 1 }
-        in_cfg && $0 ~ /^(ignored_files|key|use_git|use_composer|post_deployment_commands)(\+?)=/ {
-            name = $0
-            sub(/=.*/, "", name)
-            sub(/\+$/, "", name)
-            if (user_lines[name] != "" && !emitted[name]) {
-                print user_lines[name]
-                emitted[name] = 1
-            } else if (!emitted[name]) {
-                print
-            }
+            in_block = 1
             next
         }
-        in_cfg && $0 ~ /^hosts\[/ { next }
+        in_block && /^# CONFIG END$/ { in_block = 0; next }
+        in_block { next }
         { print }
     ' "${new_file}" > "${tmp}/comploy.final"
 
@@ -230,9 +213,13 @@ valid_hosts=0
 for host in "${!hosts[@]}"; do
     server_dir="${hosts[$host]}"
     if [[ -z "${host}" ]] || [[ -z "${server_dir}" ]]; then
-        echo "WARNING: skipping invalid host entry ('${host}' -> '${server_dir}'); remove it or fill in both host and server_dir" >&2
-        unset "hosts[$host]"
-        continue
+        echo "ERROR: host entry ('${host}' -> '${server_dir}') is incomplete; fill in a host domain and an absolute server_dir before running comploy" >&2
+        exit 1
+    fi
+    # the shipped placeholder host must be replaced with a real target
+    if [[ "${host}" == "host.name" ]] && [[ "${server_dir}" == "absolue/path" ]]; then
+        echo "ERROR: the hosts config is still the default placeholder; update the hosts array (e.g. hosts['example.com']='/var/www/example/html') before running comploy" >&2
+        exit 1
     fi
     if [[ "${server_dir}" != /* ]]; then
         echo "ERROR: server_dir '${server_dir}' for host '${host}' must be an absolute path starting with '/' (e.g. /var/www/example/html)" >&2

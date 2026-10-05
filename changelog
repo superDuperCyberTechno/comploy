@@ -1,3 +1,14 @@
+3.0.0 (2026-10-05)
+- Config section restructured: the config variables now live in a single
+  block between `# CONFIG START` and `# CONFIG END` markers, followed by
+  per-variable documentation; ships with a placeholder host that must be
+  replaced before running
+- The updater now copies the user CONFIG block wholesale onto the newest
+  version (no per-line parsing); both files must use the CONFIG markers
+- Unconfigured placeholder hosts and incomplete host entries now abort
+  with a fitting error message instead of warning or failing cryptically
+- Breaking: updater no longer supports configs without the CONFIG markers
+
 2.10.0 (2026-10-05)
 - The updater replaces the user config variables in place in the downloaded
   file, keeping the new version comments and examples intact
